@@ -4,6 +4,7 @@ import (
 	"html/template"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -94,6 +95,8 @@ func contactExists(contacts []Contact, email string) bool {
 func main() {
 	e := echo.New()
 	e.Renderer = newTemplate()
+	e.Static("/images", "images")
+	e.Static("/css", "css")
 	e.Use(middleware.Logger())
 
 	data := NewData()
@@ -136,6 +139,8 @@ func main() {
 	})
 
 	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		time.Sleep(1 * time.Second)
+
 		idStr := c.Param("id")
 		id, err := strconv.Atoi(idStr)
 
