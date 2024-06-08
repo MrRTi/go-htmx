@@ -9,9 +9,9 @@
 		placeholder="Name" />
 
 	{{ if .Errors }} 
-	{{ if .Errors.name }}
-	<div class="error">{{ .Errors.name }}</div>
-	{{ end }}
+		{{ if .Errors.name }}
+			<div class="error">{{ .Errors.name }}</div>
+		{{ end }}
 	{{ end }}
 
 	<label for="email">Email</label>
@@ -25,9 +25,9 @@
 		placeholder="Email" />
 
 	{{ if .Errors }}
-	{{ if .Errors.email }}
-	<div class="error">{{ .Errors.email }}</div>
-	{{ end }}
+		{{ if .Errors.email }}
+			<div class="error">{{ .Errors.email }}</div>
+		{{ end }}
 	{{ end }}
 
 	<button type="submit">Submit</button>

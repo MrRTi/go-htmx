@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"io"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -23,6 +24,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 }
 
 type Contact struct {
+	Id    int
 	Name  string
 	Email string
 }
@@ -35,10 +37,12 @@ func NewData() *Data {
 	return &Data{
 		Contacts: []Contact{
 			{
+				Id:    1,
 				Name:  "John Doe",
 				Email: "john.doe@gmail.com",
 			},
 			{
+				Id:    2,
 				Name:  "Jane Doe",
 				Email: "jain.doe@gmail.com",
 			},
@@ -63,8 +67,9 @@ type PageData struct {
 	Form FormData
 }
 
-func NewContact(name, email string) Contact {
+func NewContact(id int, name, email string) Contact {
 	return Contact{
+		Id:    id,
 		Name:  name,
 		Email: email,
 	}
@@ -92,6 +97,7 @@ func main() {
 	e.Use(middleware.Logger())
 
 	data := NewData()
+	next_id := 3
 
 	e.GET("/", func(c echo.Context) error {
 		return c.Render(200, "index.html", NewPageData(*data, NewFormData()))
@@ -107,7 +113,7 @@ func main() {
 					"email": "Email already exists",
 				},
 				Values: map[string]string{
-					"name": name,
+					"name":  name,
 					"email": email,
 				},
 			}
@@ -115,7 +121,8 @@ func main() {
 			return c.Render(422, "contact-form.html", formData)
 		}
 
-		contact := NewContact(name, email)
+		contact := NewContact(next_id, name, email)
+		next_id++
 		data.Contacts = append(data.Contacts, contact)
 
 		formData := NewFormData()
@@ -126,6 +133,30 @@ func main() {
 		}
 
 		return c.Render(200, "oob-contact.html", contact)
+	})
+
+	e.DELETE("/contacts/:id", func(c echo.Context) error {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+
+		if err != nil {
+			return c.String(400, "Id must be an integer")
+		}
+
+		deleted := false
+		for i, contact := range data.Contacts {
+			if contact.Id == id {
+				data.Contacts = append(data.Contacts[:i], data.Contacts[i+1:]...)
+				deleted = true
+				break
+			}
+		}
+
+		if !deleted {
+			return c.String(400, "Contact not found")
+		}
+
+		return c.NoContent(200)
 	})
 
 	e.Logger.Fatal(e.Start(":42069"))
