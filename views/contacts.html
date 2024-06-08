@@ -1,0 +1,8 @@
+<div>
+	<h1>Contacts</h1>
+	<div id="contacts">
+		{{ range .Contacts }}
+			{{ template "contact.html" . }}
+		{{ end }}
+	</div>
+</div>
